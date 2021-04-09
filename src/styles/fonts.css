@@ -1,0 +1,15 @@
+@font-face {
+	font-family: 'SF', sans-serif;
+	src: url('../assets/fonts/sf/regular.woff2') format('woff2'),
+		 url('../assets/fonts/sf/regular.woff') format('woff');
+	font-weight: 400;
+	font-style: normal;
+}
+
+@font-face {
+    font-family: 'NY',sans-serif;
+	src: url('../assets/fonts/ny/regular.woff2') format('woff2'),
+		 url('../assets/fonts/ny/regular.woff') format('woff');
+	font-weight: 700;
+	font-style: normal;
+}

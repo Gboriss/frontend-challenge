@@ -29,7 +29,7 @@ export default new Vuex.Store({
 	},
 	actions: {
 		get_products_from_api({commit}) {
-			return axios('https://api.thecatapi.com/v1/images/search?limit=10', {
+			return axios('https://api.thecatapi.com/v1/images/search?limit=15', {
 				method: "GET"
 			})
 			.then((products) => {
