@@ -7,35 +7,33 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
 	state: {
-		products: [],
-		loading: true
+		images: [],
 	},
 	mutations: {
-		set_products: (state, products) => {
-			state.products = products.map(product => {
+		setImages: (state, images) => {
+
+			let newimages = images.map(img => {				
 				return {
-					...product,
+					...img,
 					like: false,
 				}
 			})
+					
+			state.images.push(...newimages)
 		},
-		changeLoadingState: (state, loading) => {
-			state.loading = loading
-		},
+		
 		toggleLike: (state, id) => {
-			let product = state.products.find(cat => cat.id === id)
-			product.like = !product.like
+			let img = state.images.find(cat => cat.id === id)
+			img.like = !img.like
         }
 	},
 	actions: {
-		get_products_from_api({commit}) {
-			return axios('https://api.thecatapi.com/v1/images/search?limit=15', {
+		getimagesFromApi({commit}, limit) {
+			return axios(`https://api.thecatapi.com/v1/images/search?limit=${limit}`, {
 				method: "GET"
 			})
-			.then((products) => {
-				commit('set_products', products.data)
-				commit('changeLoadingState', false)
-				return products
+			.then((images) => {
+				commit('setImages', images.data)
 			})
 			.catch((error) => {
 				console.log(error)

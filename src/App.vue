@@ -1,7 +1,7 @@
 <template>
 <div id="app">
 	<header>
-		<div class="topMenu">
+		<div class="center">
 			<button class="buttonCats"
 				v-for="name in filters"
 				:key="name"
@@ -13,11 +13,14 @@
 		<div class="center">
 			<ul>
 				<Gallery
-					v-for="product in products"
-					:key="product.id"
-					:product="product"
+					v-for="(img, index) in images"
+					:key="index"
+					:img="img"
 				/>
 			</ul>
+			<p 
+				:class="{ visible: loading }" 
+			>... загружаем еще котиков ...</p>
 		</div>
 </div>
 </template>
@@ -35,23 +38,29 @@ export default {
 		return {
             show: false,
 			filter: 'Все котики',
-			filters: ['Все котики', 'Любимые котики']
+			filters: ['Все котики', 'Любимые котики'],
+			loading: false
 		}
 	},
 	computed: {
-		...mapState([
-			'loading'
-		]),
-		products() {
+		images() {
 			switch (this.filter) {
 				case 'Любимые котики':
-					return this.$store.state.products.filter(product => product.like)
+					return this.$store.state.images.filter(img => img.like)
 				default:
-					return this.$store.state.products
+					return this.$store.state.images
 			}
 		}
 	},	
 	methods: {
+		getLimit() {
+			let ul = this.$el.querySelector('ul')
+			let cardWidth = ul.offsetWidth / 5
+			let cardHeight = cardWidth + 16		
+			let y = Math.ceil(window.innerHeight / cardHeight)
+			let x = Math.ceil(ul.offsetWidth / cardWidth)
+			return x * y
+		},
 		like(id) {
             this.$store.commit('toggleLike', id)
         },
@@ -62,19 +71,27 @@ export default {
 			this.show = true
 		},
 		...mapActions([
-			'get_products_from_api'
+			'getimagesFromApi'
 		]),
 		
 	},
 	mounted() {
-		this.get_products_from_api()
-			.then((response) => {
-				if (response.data) {
-					// console.log()
-				}
-			})    
-	},
+		this.limit = this.getLimit()
+		this.getimagesFromApi(this.limit * 2)
+		let loadingMessage = this.$el.querySelector('p')
 
+		window.addEventListener('scroll', async () => {
+
+			if (this.loading) return 
+
+			if (window.scrollY + window.innerHeight > loadingMessage.offsetTop) {
+				this.loading = true
+				await this.getimagesFromApi(this.limit)
+				this.loading = false
+			}
+
+		})
+	}
 }
 </script>
 
@@ -91,25 +108,21 @@ header {
 	margin-bottom: 53px;
 	background-color: #2196F3;
 	box-shadow: 0 0 10px rgba(0,0,0,0.5);
-	.topMenu {
-		margin-left: 104px;
 
-		.buttonCats {
-			height: 64px;
-			background-color: #2196F3;
-			color:rgba(255, 255, 255, 0.7);
-			font-size: 14px;
-			line-height: 21px;
-			text-align: center;
-			padding: 20px;
-			&:active, 
-			&:hover,
-			&.active {
-				color: #fff;
-				background-color: #1E88E5;
-				transition: background-color, color .5s;
-			}
-
+	.buttonCats {
+		height: 64px;
+		background-color: #2196F3;
+		color:rgba(255, 255, 255, 0.7);
+		font-size: 14px;
+		line-height: 21px;
+		text-align: center;
+		padding: 20px;
+		&:active, 
+		&:hover,
+		&.active {
+			color: #fff;
+			background-color: #1E88E5;
+			transition: background-color, color .5s;
 		}
 	}
 }
@@ -117,15 +130,25 @@ header {
 	max-width: 1440px;
 	width: 100%;
 	margin: 0 auto;
+	padding: 0 62px;
+	box-sizing: border-box;
 	ul {
 		display: grid;
 		grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
-		grid-template-rows: 1fr 1fr 1fr;
-		gap: 52px 32px;
-	
-		margin-left: 64px;
+		gap: 48px 32px;
+		width: 100%;
+		@media (max-width: 720px) {
+			display: flex;
+			flex-direction: column;
+			margin-bottom: 30px;
+		}
+	}
+	p {
+		opacity: 0;
+		text-align: center;
+		.visible {
+			opacity: 1;
+		}
 	}
 }
-
-
 </style>
